@@ -1,17 +1,17 @@
 public class Position {
 
-    public int getI() {
-        return i;
+    public int getX() {
+        return x;
     }
 
-    public int getJ() {
-        return j;
+    public int getY() {
+        return y;
     }
 
-    private int i, j;
+    private int x, y;
 
-    public Position(int i, int j) {
-        this.i = i;
-        this.j = j;
+    public Position(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 }

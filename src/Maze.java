@@ -1,12 +1,17 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class Maze {
 
-    Cell[][] maze;
-    LinkedList<Position> stack = new LinkedList<>();
-    Random rng = new Random();
+    private Cell[][] maze;
+    private LinkedList<Position> stack = new LinkedList<>();
+    private Random rng = new Random();
+    private ArrayList<String> textMaze = new ArrayList<>();
 
     public Maze(int width, int height) {
         maze = new Cell[width][height];
@@ -16,43 +21,41 @@ public class Maze {
             }
         }
         generateMaze();
-        maze[0][0].makeDoor("left");
-        maze[width-1][height-1].makeDoor("right");
     }
 
     private void generateMaze() {
-        int i = 0 , j = 0;
+        int x = 0 , y = 0;
         do {
-            if(!maze[i][j].isVisited()) {
-                stack.push(new Position(i, j));
-                maze[i][j].visit();
+            if(!maze[x][y].isVisited()) {
+                stack.push(new Position(x, y));
+                maze[x][y].visit();
             }
-            String[] directions = checkPossibleDirections(i,j);
+            String[] directions = checkPossibleDirections(x,y);
             switch(directions[rng.nextInt(directions.length)]) {
                 case "left":
-                    maze[i][j].makeDoor("left");
-                    i--;
-                    maze[i][j].makeDoor("right");
+                    maze[x][y].makeDoor("left");
+                    x--;
+                    maze[x][y].makeDoor("right");
                     break;
                 case "right":
-                    maze[i][j].makeDoor("right");
-                    i++;
-                    maze[i][j].makeDoor("left");
+                    maze[x][y].makeDoor("right");
+                    x++;
+                    maze[x][y].makeDoor("left");
                     break;
                 case "bottom":
-                    maze[i][j].makeDoor("top");
-                    j--;
-                    maze[i][j].makeDoor("bottom");
+                    maze[x][y].makeDoor("top");
+                    y--;
+                    maze[x][y].makeDoor("bottom");
                     break;
                 case "top":
-                    maze[i][j].makeDoor("bottom");
-                    j++;
-                    maze[i][j].makeDoor("top");
+                    maze[x][y].makeDoor("bottom");
+                    y++;
+                    maze[x][y].makeDoor("top");
                     break;
                 default:
                     Position pos = stack.pop();
-                    i = pos.getI();
-                    j = pos.getJ();
+                    x = pos.getX();
+                    y = pos.getY();
                     break;
             }
 
@@ -77,67 +80,38 @@ public class Maze {
         return directions.toArray(new String[0]);
     }
 
-    public void printMaze() {
-        for(int j = 0; j<maze[0].length; j++) {
-            for(int i = 0; i<maze.length; i++){
-                if(maze[i][j].isTopWall())
-                    System.out.print("+---");
-                else
-                    System.out.print("+   ");
-            }
-            System.out.println("+");
-            for(int i = 0; i<maze.length; i++){
-                if(maze[i][j].isLeftWall())
-                    System.out.print("|   ");
-                else
-                    System.out.print("    ");
-            }
-            if(j<maze[0].length-1)
-                System.out.println("|");
-            else
-                System.out.println(" ");
-            if(j==maze[0].length-1) {
-                for (int i = 0; i < maze.length; i++) {
-                    if (maze[i][j].isBottomWall())
-                        System.out.print("+---");
-                    else
-                        System.out.print("+   ");
+    private void generateTextMaze() {
+        String line = "";
+        for(int x = 0; x<maze.length; x++) {
+            for(int y = 0; y<maze[0].length; y++) {
+                if(maze[x][y].isTopWall() && maze[x][y].isLeftWall()){
+                    line = x+" "+y+" "+"PD\n";
                 }
-                System.out.println("+");
+                else if(maze[x][y].isTopWall()) {
+                    line = x+" "+y+" "+"P\n";
+                }
+                else if(maze[x][y].isLeftWall()) {
+                    line = x+" "+y+" "+"D\n";
+                }
+                else {
+                    line = x+" "+y+"\n";
+                }
+                textMaze.add(line);
             }
         }
     }
 
-    public String getMaze() {
-        StringBuilder sb = new StringBuilder();
-        for(int j = 0; j<maze[0].length; j++) {
-            for(int i = 0; i<maze.length; i++){
-                if(maze[i][j].isTopWall())
-                    sb.append("+---");
-                else
-                    sb.append("+   ");
+    public void writeToFile(File file) {
+        generateTextMaze();
+        try {
+            FileWriter writer = new FileWriter(file);
+            for (String line:textMaze) {
+                writer.write(line);
             }
-            sb.append("+\n");
-            for(int i = 0; i<maze.length; i++){
-                if(maze[i][j].isLeftWall())
-                    sb.append("|   ");
-                else
-                    sb.append("    ");
-            }
-            if(j<maze[0].length-1)
-                sb.append("|\n");
-            else
-                sb.append(" \n");
-            if(j==maze[0].length-1) {
-                for (int i = 0; i < maze.length; i++) {
-                    if (maze[i][j].isBottomWall())
-                        sb.append("+---");
-                    else
-                        sb.append("+   ");
-                }
-                sb.append("+\n");
-            }
+            writer.close();
         }
-        return sb.toString();
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
