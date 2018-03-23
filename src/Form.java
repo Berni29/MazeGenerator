@@ -23,6 +23,7 @@ public class Form {
                 try {
                     maze = new Maze(Integer.parseInt(widthField.getText()), Integer.parseInt(heightField.getText()));
                     JOptionPane.showMessageDialog(panel1,"Maze sucessfully generated", "Success", 1);
+                    saveButton.setEnabled(true);
                 }
                 catch(ArrayIndexOutOfBoundsException | NegativeArraySizeException ee) {
                     JOptionPane.showMessageDialog(panel1,"Number must be greater than 0!","Error",0);
